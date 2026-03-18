@@ -59,9 +59,8 @@
                                     <td style="text-align:center; padding:2px;">
                                         <span t-esc="sr_no"/>
                                     </td>
-                                    <td style="padding:2px;">
-                                        <span t-esc="line.product_id.product_tmpl_id.name or line.product_id.display_name or ''"/>
-                                        <t t-if="is_short"><span> !</span></t>
+                                   <td style="padding:2px;">
+                                    <span t-esc="line.x_internal_variant_id.name or ''"/>
                                     </td>
                                     <td style="padding:2px;">
                                         <t t-set="variant_vals" t-value="line.product_id.product_template_attribute_value_ids.mapped('name')"/>
