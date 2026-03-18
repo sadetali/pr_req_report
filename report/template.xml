@@ -1,0 +1,110 @@
+<odoo>
+    <template id="rpt">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="page" style="padding-top:0; font-size:11px;">
+
+                    <div style="text-align:center; font-size:18px; font-weight:600; margin:0 0 5px 0;">
+                        Product Request
+                    </div>
+
+                    <table style="width:100%; margin-bottom:5px; font-size:11px;">
+                        <tr>
+                            <td style="width:16%; font-size:13px;"><strong>Destination</strong></td>
+                            <td style="width:39%; font-size:13px;">: <span t-esc="o.location_dest_id.display_name or ''"/></td>
+                            <td style="width:15%;"><strong>Reference</strong></td>
+                            <td style="width:30%;">: <span t-esc="o.name or ''"/></td>
+                        </tr>
+                        <tr>
+                            <td t-if="o.partner_id and o.partner_id.name"><strong>Contact</strong></td>
+                            <td t-if="o.partner_id and o.partner_id.name">: <span t-esc="o.partner_id.name or ''"/></td>
+                            <td t-if="not (o.partner_id and o.partner_id.name)"></td>
+                            <td t-if="not (o.partner_id and o.partner_id.name)"></td>
+                            <td><strong>Date</strong></td>
+                            <td>: <span t-field="o.scheduled_date"/></td>
+                        </tr>
+                    </table>
+
+                    <t t-set="lines"
+                       t-value="o.move_ids_without_package.filtered(lambda l: (l.product_uom_qty or 0) &gt; 0 or (l.quantity or 0) &gt; 0).sorted(key=lambda l: (((l.product_id.categ_id.complete_name or '').split('/')[-1].strip()), (l.product_id.display_name or '')))"/>
+
+                    <table style="width:100%; border-collapse:collapse; font-size:11px;">
+                        <thead style="display:table-header-group;">
+                            <tr style="border-bottom:1px solid #666;">
+                                <th style="width:5%; padding:3px; text-align:center;">No</th>
+                                <th style="width:28%; padding:3px; text-align:left;">Product</th>
+                                <th style="width:15%; padding:3px; text-align:left;">Variant</th>
+                                <th style="width:10%; padding:3px; text-align:center;">Demand</th>
+                                <th style="width:10%; padding:3px; text-align:center;">Picked</th>
+                                <th style="width:7%; padding:3px; text-align:center;">Tick</th>
+                                <th style="width:10%; padding:3px; text-align:center;">UOM</th>
+                                <th style="width:15%; padding:3px; text-align:left;">Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="sr_no" t-value="1"/>
+                            <t t-set="current_category" t-value="''"/>
+                            <t t-foreach="lines" t-as="line">
+                                <t t-set="cat_name" t-value="((line.product_id.categ_id.complete_name or '').split('/')[-1].strip()) or 'Uncategorized'"/>
+                                <t t-if="cat_name != current_category">
+                                    <tr>
+                                        <td colspan="8" style="padding:3px 2px; font-weight:700; border-bottom:0.5px solid #bbb; background:#f6f6f6;">
+                                            <span t-esc="cat_name"/>
+                                        </td>
+                                    </tr>
+                                    <t t-set="current_category" t-value="cat_name"/>
+                                </t>
+                                <t t-set="is_short" t-value="(line.quantity or 0) &lt; (line.product_uom_qty or 0)"/>
+                                <tr t-att-style="'border-bottom:0.5px dotted #999; font-weight:700;' if is_short else 'border-bottom:0.5px dotted #999;'">
+                                    <td style="text-align:center; padding:2px;">
+                                        <span t-esc="sr_no"/>
+                                    </td>
+                                    <td style="padding:2px;">
+                                        <span t-esc="line.product_id.product_tmpl_id.name or line.product_id.display_name or ''"/>
+                                        <t t-if="is_short"><span> !</span></t>
+                                    </td>
+                                    <td style="padding:2px;">
+                                        <t t-set="variant_vals" t-value="line.product_id.product_template_attribute_value_ids.mapped('name')"/>
+                                        <span t-esc="', '.join(variant_vals) if variant_vals else '-'"/>
+                                    </td>
+                                    <td style="text-align:center; padding:2px;">
+                                        <t t-set="dem" t-value="line.product_uom_qty or 0"/>
+                                        <span t-esc="'%g' % dem"/>
+                                    </td>
+                                    <td style="text-align:center; padding:2px;">
+                                        <t t-set="pkd" t-value="line.quantity or 0"/>
+                                        <span t-esc="'%g' % pkd"/>
+                                    </td>
+                                    <td style="text-align:center; padding:2px;">
+                                        <div style="width:11px; height:11px; border:1px solid #000; margin:auto;"></div>
+                                    </td>
+                                    <td style="text-align:center; padding:2px;">
+                                        <span t-esc="line.product_uom.name or ''"/>
+                                    </td>
+                                    <td style="padding:2px;"></td>
+                                </tr>
+                                <t t-set="sr_no" t-value="sr_no + 1"/>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top:18px; width:100%; font-size:11px;">
+                        <table style="width:100%; border:0;">
+                            <tr>
+                                <td style="text-align:left; font-size:11px;">Picked by: ____________________</td>
+                                <td style="text-align:right; font-size:11px;">Received by: ____________________</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div style="margin-top:8px; width:100%; font-size:10px;">
+                        <span>Printed by: </span><span t-esc="printed_by"/>
+                        <span> | </span>
+                        <span t-esc="printed_on"/>
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>
