@@ -4,8 +4,9 @@
     'category': 'Inventory',
     'summary': 'Compact grouped product request report for internal transfers',
     'license': 'LGPL-3',
-    'depends': ['stock'],
+    'depends': ['stock', 'product'],
     'data': [
+        'views/product_template_views.xml',
         'report/report.xml',
         'report/template.xml'
     ],
